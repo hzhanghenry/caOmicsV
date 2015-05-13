@@ -11,7 +11,14 @@
 \usepackage{hyperref}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+concordance=TRUE
+)
+@
+
 
 \title{Intrudoction to caOmicsV}
 \author{Hongen Zhang, Ph.D.\\
@@ -57,42 +64,29 @@ For bioNetCircos layout, igraph and bc3net packages must be installed first.\\
 
 \section{An Quick Demo}
 
-Following code will generate an bioMatrix layout image with the build-in demo 
+Following code will generate an bioMatrix layout image with the built-in demo 
 data.
 
-<<caOmicsVBioMatrixLayoutDemo>>=
+<<caOmicsVBioMatrixLayoutDemo,fig.cap="caOmicsV bioMatrix layout plot">>=
 library(caOmicsV)
 data(caOmicsV.biomatrix.eset)
-png("caOmicsV.bioMatrix.Layout.Plot.png", height=8, width=11,
-    units="in", res=300, type="cairo")
 plotBioMatrix(caOmicsV.biomatrix.eset, summaryType="text")
 bioMatrixLegend(heatmapNames=c("RNASeq", "miRNASeq"),
     categoryNames=c("Methyl H", "Methyl L"),
     binaryNames=c("CN LOSS", "CN Gain"),
     heatmapMin=-3, heatmapMax=3, colorType="BlueWhiteRed")
-dev.off()
 @
 
-\includegraphics[width=\textwidth]{caOmicsV_bioMatrix_Layout_Plot.png}
 
-Figure 1. caOmicsV bioMatrix layout plot\\
-
-Run the code below will get an image in bioNetCircos layout with the build-in 
+Run the code below will get an image in bioNetCircos layout with the built-in 
 demo data.
 
-<<caOmicsVbionetCircosLayoutDemo>>=
+<<caOmicsVbionetCircosLayoutDemo,fig.cap="caOmicsV bioNetCircos layout plot">>=
 data(caOmicsV.bionet.eset)
-png("caOmicsV.bioNetCircos.Layout.Plot.png", height=8, width=11,
-    units="in", res=300, type="cairo")
 plotBioNetCircos(caOmicsV.bionet.eset)
 dataNames <- c("Tissue Type", "RNASeq", "miRNASeq", "Methylation", "CNV")
 bioNetLegend(dataNames, heatmapMin=-3, heatmapMax=3)
-dev.off()
 @
-
-\includegraphics[width=\textwidth]{caOmicsV_bioNetCircos_Layout_Plot.png}
-
-Figure 2. caOmicsV bioNetCircos layout plot\\
 
 \section{Making eSet}
 
@@ -103,7 +97,6 @@ in the package installation and could be explored with:
 <<caOmicsV_bionet_eset>>=
 data(caOmicsV.biomatrix.eset)
 names(caOmicsV.biomatrix.eset)
-
 data(caOmicsV.bionet.eset)
 names(caOmicsV.bionet.eset)
 @ 
@@ -149,13 +142,13 @@ To make caOmicsV plot, the eset must contains at least one genomic data (one
 of heatmap data, category data, or binary data)
 
 
-\section{Plot bioMatrix Layout Manually}
+\section{Custom bioMatrix plots}
 
 The default plot method, plotBiomatrix(), is a convenient and efficient way to 
-make bioMatirx plot. In case of necessary, users can follow procedures below 
-to generate bioMatrix layout plot manually.\\
+make a bioMatirx plot. In some cases, users can follow procedures below 
+to generate bioMatrix layout plot .\\
 
-1.  Demo data
+\subsection{Demo data}
 
 <<bioMatrixDemoData>>=
 library(caOmicsV)
@@ -164,9 +157,9 @@ eset <- caOmicsV.biomatrix.eset
 names(eset)
 @
 
-2.  Initialize bioMatrix Layout
+\subsection{Initialize bioMatrix Layout}
 
-<<InitializeBioMatrix>>=
+<<InitializeBioMatrix, eval=FALSE>>=
 numOfGenes <- length(eset$geneNames);
 numOfSamples <- length(eset$sampleNames); 
 numOfPhenotypes <- nrow(eset$sampleInfo)-1;
@@ -188,22 +181,14 @@ initializeBioMatrixPlot(numOfGenes, numOfSamples, numOfPhenotypes,
     geneNameWidth, remarkWidth, sampleNameHeight)
 caOmicsVColors <- getCaOmicsVColors()
 
-png("caOmicsVbioMatrixLayoutDemo.png", height=8, width=12, 
-        unit="in", res=300, type="cairo")
 par(cex=0.75)
 showBioMatrixPlotLayout(eset$geneNames,eset$sampleNames, phenotypes)
 @
 
-The layoue will look like below. \\
 
-\includegraphics[width=\textwidth]{caOmicsV_bioMatrix_Layout_Demo.png}
+\subsection{Plot tissue types on phenotype area}
 
-Figure 3. caOmicsV bioMatrix layout \\
-
-
-3.  Plot tissue types on phenotype area
-
-<<PlotBioMatrixPhenotype>>=
+<<PlotBioMatrixPhenotype, eval=FALSE>>=
 head(eset$sampleInfo)[,1:3]
 rowIndex <- 2;
 
@@ -229,9 +214,9 @@ legend(sampleLegendX, sampleLegendY, legend=sampleTypes,
     fill=colors,  bty="n", xjust=0)
 @
 
-4.  Heatmap plot 
+\subsection{Heatmap}
 
-<<PlotBioMatrixHeatmap>>=
+<<PlotBioMatrixHeatmap, eval=FALSE>>=
 heatmapData <- as.matrix(eset$heatmapData[[1]][,]);
 plotBioMatrixHeatmap(heatmapData, maxValue=3, minValue=-3)
 
@@ -245,9 +230,9 @@ plotBioMatrixRowNames(secondNames, "omicsData", textColors,
     side="right", skipPlotColumns=0);
 @
 
-5.  Draw outline for each samples to show methylation status.
+\subsection{Outline heatmap cells}.
 
-<<PlotBioMatrixCategoryData>>=
+<<PlotBioMatrixCategoryData, eval=FALSE>>=
 categoryData <- eset$categoryData[[1]]
 totalCategory <- length(unique(as.numeric(eset$categoryData[[1]])))
 
@@ -256,9 +241,9 @@ plotBioMatrixCategoryData(categoryData, areaName="omicsData",
     sampleColors=plotColors[1:totalCategory])
 @
 
-6.  Binary data plot 
+\subsection{Binary data}
 
-<<PlotBioMatrixBinaryData>>=
+<<PlotBioMatrixBinaryData, eval=FALSE>>=
 binaryData <- eset$binaryData[[1]];
 plotBioMatrixBinaryData(binaryData, sampleColor=caOmicsVColors[4]);
 
@@ -266,9 +251,9 @@ binaryData <- eset$binaryData[[2]];
 plotBioMatrixBinaryData(binaryData, sampleColor=caOmicsVColors[3])
 @
 
-7.  Plot summary data on right side of plot area
+\subsection{Summary data}
 
-<<PlotBioMatrixSummaryData>>=
+<<PlotBioMatrixSummaryData, eval=FALSE>>=
 summaryData  <- eset$summaryInfo[[1]][, 2];
 summaryTitle <- colnames(eset$summaryInfo[[1]])[2];
 
@@ -284,30 +269,36 @@ plotBioMatrixRowNames(summaryData, "omicsData",
     skipPlotColumns=col2skip)
 @
 
-8.  Add legend
+\subsection{Legend}
 
-<<AddBioMatrixLegend>>=
+<<AddBioMatrixLegend, eval=FALSE>>=
 bioMatrixLegend(heatmapNames=c("RNASeq", "miRNASeq"), 
     categoryNames=c("Methyl H", "Methyl L"), 
     binaryNames=c("CN LOSS", "CN Gain"),   
     heatmapMin=-3, heatmapMax=3, 
     colorType="BlueWhiteRed")
-dev.off()
 @
 
-Run code above should generate an image same as Figure 1. 
+<<biomatrixCustomComplete, fig.cap="caOmicsV bioMatrix layout", fig.lp="abc", echo=FALSE>>=
+<<InitializeBioMatrix>>
+<<PlotBioMatrixPhenotype>>
+<<PlotBioMatrixHeatmap>>
+<<PlotBioMatrixCategoryData>>
+<<PlotBioMatrixBinaryData>>
+<<PlotBioMatrixSummaryData>>
+<<AddBioMatrixLegend>>
+@
 
-
-\section{Plot bioNetCircos Layout Manually}
+\section{Custom bioNetCircos plotting}
 
 With default bioNetCircos layout plot method, the node layout and labelling 
 rely on the igraph package and sometimes the node layout and labelling may not 
 be in desired location. In that case, it is recommended to manually check out 
-the layout first then plot each item. \\
+the layout first then plot each item. 
 
-Following are basic procedures to make a bioNetCircos plot:\\
+Following are basic procedures to make a bioNetCircos plot.
 
-1.  Demo data
+\subsection{Demo data}
 
 <<BioNetCircosDemoData>>=
 library(caOmicsV)
@@ -329,9 +320,9 @@ expr <- eset$heatmapData[[1]]
 bioNet <- bc3net(expr) 
 @
 
-2.  Initialize bioNetCircos layout
+\subsection{Initialize bioNetCircos layout}
 
-<<InitializeBioNetCircos>>=
+<<InitializeBioNetCircos, eval=FALSE>>=
 widthOfSample    <- 100
 widthBetweenNode <- 3
 lengthOfRadius   <- 10
@@ -350,17 +341,12 @@ par(cex=0.75)
 showBioNetNodesLayout()
 @
 
-3.  Manually label each node \\
+\subsection{Manually label nodes}
 
 At this point, each node has its index labelled. Manually check out the 
-desired location for node name (gene) labelling then label each node (the node 
-index here may be different from your graph).\\
+desired location for node name (gene) labelling then label each node.
 
-\includegraphics[width=\textwidth]{caOmicsV_bionetcircos_node_layout.png}
-
-Figure 4. caOmicsV bioNetCircos node layout
-
-<<BioNetCircosNodeLayout>>=
+<<BioNetCircosNodeLayout, eval=FALSE>>=
 par(cex=0.6)
 onTop <- c(14, 15, 16, 9, 7, 20, 8, 24, 10, 25)
 labelBioNetNodeNames(nodeList=onTop,labelColor="blue", 
@@ -382,13 +368,13 @@ labelBioNetNodeNames(nodeList=onRight,labelColor="brown",
 Once all node names are labelled correctly, plot area of each node could be 
 erased for plotting.
 
-<<EraseBioNetCircosNodes>>=
+<<EraseBioNetCircosNodes, eval=FALSE>>=
 eraseBioNetNode()
 @
 
-4.  Plot each data set
+\subsection{Plot data}
 
-<<BioNetCircosBoundary>>=
+<<BioNetCircosBoundary, eval=FALSE>>=
 inner <- lengthOfRadius/2
 outer <- inner +  trackheight
 @
@@ -396,7 +382,7 @@ outer <- inner +  trackheight
 Plot tissue type for each node. Repeat this step if there are more than one 
 clinical features.
 
-<<PlotBioNetCircosPhenotype>>=
+<<PlotBioNetCircosPhenotype, eval=FALSE>>=
 groupInfo <- as.character(eset$sampleInfo[2, ])
 sampleColors <- rep("blue", numOfSamples);
 sampleColors[grep("Tumor", groupInfo)] <- "red"
@@ -412,7 +398,7 @@ outer <- inner +  trackheight
 
 Heatmap plot for each node. Repeat this step if there are more heatmap data. 
 
-<<PlotBioNetCircosHeatmap>>=
+<<PlotBioNetCircosHeatmap, eval=FALSE>>=
 exprData <- eset$heatmapData[[1]]
 plotType <- supportedType[4] 
 bioNetCircosPlot(exprData, plotType, outer, inner, 
@@ -425,7 +411,7 @@ outer <- inner +  trackheight
 Category data plot for each node. Repeat this step if there are more category 
 datasets.
 
-<<PlotBioNetCircosCategoryData>>=
+<<PlotBioNetCircosCategoryData, eval=FALSE>>=
 categoryData <- eset$categoryData[[1]]
 plotType <- supportedType[2];
 bioNetCircosPlot(categoryData, plotType, 
@@ -437,7 +423,7 @@ outer <- inner +  trackheight
 Binary data plot for each node. Repeat this step if there are more binary 
 datasets
 
-<<PlotBioNetCircosBinaryData>>=
+<<PlotBioNetCircosBinaryData, eval=FALSE>>=
 binaryData <- eset$binaryData[[1]]
 plotType <- supportedType[3]
 plotColors <- rep(caOmicsVColors[1], ncol(binaryData))
@@ -450,7 +436,7 @@ outer <- inner +  trackheight
 
 Link samples on a node. Repeat this step for each node when needed.
 
-<<LinkBioNetCircosSamples>>=
+<<LinkBioNetCircosSamples, eval=FALSE>>=
 outer <- 2.5
 bioNetGraph <- getBioNetGraph()
 nodeIndex <- which(V(bioNetGraph)$name=="PLVAP")
@@ -468,18 +454,26 @@ linkBioNetSamples(nodeIndex, fromSample,
     toSample, outer, plotColors)
 @
 
-5.  Add legend
+\subsection{Add legend}
 
-<<AddBioNetCircosLegend>>=
+<<AddBioNetCircosLegend, eval=FALSE>>=
 dataNames <- c("Tissue Type", "RNASeq", "Methylation", "CNV")
 bioNetLegend(dataNames, heatmapMin=-3, heatmapMax=3)
 @
 
-The output is shown below.\\
+<<finalBioNetCircos, fig.cap="Manual or custom BioNetCircos plot", echo=FALSE>>=
+<<InitializeBioNetCircos>>
+<<BioNetCircosNodeLayout>>
+<<EraseBioNetCircosNodes>>
+<<BioNetCircosBoundary>>
+<<PlotBioNetCircosPhenotype>>
+<<PlotBioNetCircosHeatmap>>
+<<PlotBioNetCircosCategoryData>>
+<<PlotBioNetCircosBinaryData>>
+<<LinkBioNetCircosSamples>>
+<<AddBioNetCircosLegend>>
+@
 
-\includegraphics[width=\textwidth]{caOmicsV_bionetcircos_plot_manually.png}
-
-Figure 5. caOmicsV bioNetCircos plot
 
 
 \section{sessionInfo}
