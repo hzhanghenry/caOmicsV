@@ -1,8 +1,8 @@
 Package: caOmicsV
 Type: Package
 Title: Visualization of multi-dimentional cancer genomics data
-Version: 0.99.1
-Date: 2015-04-28
+Version: 0.99.2
+Date: 2015-05-13
 Author: Henry Zhang
 Maintainer: Henry Zhang <hzhang@mail.nih.gov>
 Description: caOmicsV package provides methods to visualize multi-dimentional 
@@ -11,6 +11,7 @@ Description: caOmicsV package provides methods to visualize multi-dimentional
     layout or network layout.
 License: GPL (>=2.0)
 Depends: R (>= 3.2), igraph (>= 0.7.1), bc3net (>= 1.0.2)
+VignetteBuilder: knitr
+Suggests: BiocStyle, knitr
 biocViews: Visualization, Network, RNASeq
-NeedsCompilation: no
-Packaged: 2015-04-29 18:31:12 UTC; hzhang
+
