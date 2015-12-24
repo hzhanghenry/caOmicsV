@@ -7,13 +7,13 @@
 
 
 library(caOmicsV)
-data(caOmicsV.biomatrix.eset)
+data(biomatrixPlotDemoData)
 
-pdf("caOmicsV.bioMatrix.Layout.Plot.pdf", height=8, width=11)
+pdf("caOmicsV.bioMatrix.Layout.Plot.pdf", height=12, width=12)
 
-plotBioMatrix(caOmicsV.biomatrix.eset, summaryType="text")
+plotBioMatrix(biomatrixPlotDemoData, summaryType="text")
 bioMatrixLegend(heatmapNames=c("RNASeq", "miRNASeq"), 
-    categoryNames=c("Methyl H", "Methyl ZL"), 
+    categoryNames=c("Methyl H", "Methyl L"), 
     binaryNames=c("CN LOSS", "CN Gain"),   
     heatmapMin=-3, heatmapMax=3, colorType="BlueWhiteRed")
 
