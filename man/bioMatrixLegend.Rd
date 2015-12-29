@@ -9,7 +9,7 @@
 }
 \usage{
     bioMatrixLegend(heatmapNames=NULL, categoryNames=NULL, binaryNames=NULL, 
-            heatmapMin=NULL, heatmapMax=NULL, colorType="BlueWhiteRed")
+            heatmapMin=-3, heatmapMax=3, colorType="BlueWhiteRed")
 }
 \arguments{
     \item{heatmapNames}{
@@ -48,12 +48,12 @@
     Henry Zhang
 }
 \examples{
-    data(caOmicsV.biomatrix.eset)
-    plotBioMatrix(caOmicsV.biomatrix.eset, summaryType="text")
+    data(biomatrixPlotDemoData)
+    plotBioMatrix(biomatrixPlotDemoData, summaryType="text")
     bioMatrixLegend(heatmapNames=c("RNASeq", "miRNASeq"), 
-        categoryNames=c("Methyl H", "Methyl ZL"), 
+        categoryNames=c("Methyl H", "Methyl L"), 
         binaryNames=c("CN LOSS", "CN Gain"),   
-        heatmapMin=-3, heatmapMax=3, colorType="BlueWhiteRed")
+        colorType="BlueWhiteRed")
 }
 \keyword{ methods }
 

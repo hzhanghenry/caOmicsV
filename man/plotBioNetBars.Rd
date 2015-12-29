@@ -35,14 +35,14 @@
     Henry Zhang
 }
 \examples{
-    data(caOmicsV.bionet.eset)
-    expr <- caOmicsV.bionet.eset$heatmapData[[1]]
+    data(bionetPlotDemoData)
+    expr <- bionetPlotDemoData$heatmapData[[1]]
     bioNet <- bc3net(expr)
 
     initializeBioNetCircos(bioNet, totalSamples=60)
     showBioNetNodesLayout()
 
-    methyl <- caOmicsV.bionet.eset$categoryData[[1]]
+    methyl <- bionetPlotDemoData$categoryData[[1]]
     sampleColors <- c(rep("red", 20), rep("blue", 20), rep("cyan", 20))
     plotBioNetBars(methyl, outer=1.6, inner=1.5, plotColors=sampleColors)
 }

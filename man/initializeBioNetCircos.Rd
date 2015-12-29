@@ -46,8 +46,8 @@
     None
 }
 \examples{
-    data(caOmicsV.bionet.eset)
-    expr <- caOmicsV.bionet.eset$heatmapData[[1]]
+    data(bionetPlotDemoData)
+    expr <- bionetPlotDemoData$heatmapData[[1]]
     bioNet <- bc3net(expr)
 
     initializeBioNetCircos(bioNet, totalSamples=100, sampleWidth=100, 

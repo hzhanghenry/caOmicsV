@@ -10,6 +10,7 @@
     getBioMatrixPlotAreaHeigth
     getBioMatrixPlotAreaWidth
     getBioMatrixRemarkWidth
+    getBioMatrixSummaryWidth
     getBioMatrixRowPadding
     getBioMatrixSampleHeight
     getBioMatrixSampleIDHeight
@@ -34,6 +35,7 @@
     getBioMatrixPlotAreaHeigth()
     getBioMatrixPlotAreaWidth()
     getBioMatrixRemarkWidth()
+    getBioMatrixSummaryWidth()
     getBioMatrixRowPadding()
     getBioMatrixSampleHeight()
     getBioMatrixSampleIDHeight()
@@ -72,8 +74,10 @@
     right labels).  
 
     getBioMatrixRemarkWidth() returns a non-negative numeric value in inch for 
-    width on the right side of data plot, usually for second gene labels or 
-    summary data plot.  
+    width on the right side of data plot, usually for second gene labels.
+
+    getBioMatrixSummaryWidth() returns a non-negative numeric value in inch  
+    for width on the right side of data plot area to plot summary data plot.  
 
     getBioMatrixRowPadding() returns a non-negative numeric value in inch for 
     height of padding between two rows. 

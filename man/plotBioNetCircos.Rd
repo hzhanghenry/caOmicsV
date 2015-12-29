@@ -9,11 +9,11 @@
     need make changes based on this display, specifically the igraph layout.
 }
 \usage{
-    plotBioNetCircos(eSet, graph=NULL, heatmapMax=NULL, heatmapMin=NULL, 
+    plotBioNetCircos(dataSet, graph=NULL, heatmapMax=NULL, heatmapMin=NULL, 
             heatmapColor="BlueWhiteRed")
 }
 \arguments{
-    \item{eSet}{
+    \item{dataSet}{
     an object returned from method of getESet() that contains all data for 
     plot
     }
@@ -41,7 +41,7 @@
     Henry Zhang
 }
 \examples{
-    data(caOmicsV.bionet.eset)
-    plotBioNetCircos(caOmicsV.bionet.eset)
+    data(bionetPlotDemoData)
+    plotBioNetCircos(bionetPlotDemoData)
 }
 \keyword{ methods }

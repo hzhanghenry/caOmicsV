@@ -8,12 +8,12 @@
     settings.
 }
 \usage{
-    plotBioMatrix(eSet, summaryType=c("text", "bar"), summarybyRow=TRUE, 
+    plotBioMatrix(dataSet, summaryType=c("text", "bar"), summarybyRow=TRUE, 
         heatmapMax=NULL, heatmapMin=NULL, heatmapColor="BlueWhiteRed")
 }
 \arguments{
-    \item{eSet}{
-    an object, returned from method of getESet(), with all plot data
+    \item{dataSet}{
+    an object, returned from method of getPlotDataSet(), with all plot data
     }
     \item{summaryType}{
     character vector, either "text" or "bar",  for plot type of summary data
@@ -41,9 +41,9 @@
     Henry Zhang
 }
 \examples{
-    data(caOmicsV.biomatrix.eset)
-    plotBioMatrix(caOmicsV.biomatrix.eset, summaryType="text", 
-        summarybyRow=TRUE, heatmapMax=NULL, heatmapMin=NULL, 
+    data(biomatrixPlotDemoData)
+    plotBioMatrix(biomatrixPlotDemoData, summaryType="text", 
+        summarybyRow=TRUE, heatmapMax=3, heatmapMin=-3, 
         heatmapColor="BlueWhiteRed") 
 }
 \keyword{ methods }

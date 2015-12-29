@@ -43,13 +43,13 @@
     Henry Zhang
 }
 \examples{
-    data(caOmicsV.bionet.eset)
-    expr <- caOmicsV.bionet.eset$heatmapData[[1]]
+    data(bionetPlotDemoData)
+    expr <- bionetPlotDemoData$heatmapData[[1]]
     bioNet <- bc3net(expr) 
     initializeBioNetCircos(bioNet, totalSamples=60)
     showBioNetNodesLayout()
 
-    binaryData <- caOmicsV.bionet.eset$binaryData[[1]]
+    binaryData <- bionetPlotDemoData$binaryData[[1]]
     sampleColors <- c(rep("blue", ncol(binaryData)))
     plotType <- "points"
     inner <- 2

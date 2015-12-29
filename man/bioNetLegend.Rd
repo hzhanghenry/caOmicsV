@@ -11,7 +11,7 @@
 }
 \usage{
     bioNetLegend(dataNames, textCoor=NULL, heatmapCoor=NULL,
-        scaleWidth, scaleHeight, heatmapMin=NULL, heatmapMax=NULL,  
+        scaleWidth, scaleHeight, heatmapMin=-3, heatmapMax=3,  
         colorType="BlueWhiteRed", direction="h")
 }
 \arguments{
@@ -31,10 +31,10 @@
     non-negative numeric, height of heatmap color scale
     }
     \item{heatmapMin}{
-    numeric, minimum value of heatmap color scale
+    numeric, minimum value of heatmap color scale, default -3 (z-score)
     }
     \item{heatmapMax}{
-    numeric, maximum value of heatmap color scale
+    numeric, maximum value of heatmap color scale, default 3 (z-score)
     }
     \item{colorType}{
     character vector, one of "BlueWhiteRed", "GreenWhiteRed", "GreenYellowRed", 
@@ -52,9 +52,9 @@
     Henry Zhang
 }
 \examples{
-    data(caOmicsV.bionet.eset)
-    plotBioNetCircos(caOmicsV.bionet.eset)
+    data(bionetPlotDemoData)
+    plotBioNetCircos(bionetPlotDemoData)
     dataNames <- c("Tissue Type", "RNASeq", "miRNASeq", "Methylation", "CNV")
-    bioNetLegend(dataNames, heatmapMin=-3, heatmapMax=3)
+    bioNetLegend(dataNames)
 }
 \keyword{ methods }

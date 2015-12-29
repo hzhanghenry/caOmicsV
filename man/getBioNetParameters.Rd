@@ -62,9 +62,8 @@
     Henry Zhang
 }
 \examples{
-    data(caOmicsV.bionet.eset)
-    eSet <- caOmicsV.bionet.eset
-    expr <- eSet$heatmapData[[1]]
+    data(bionetPlotDemoData)
+    expr <- bionetPlotDemoData$heatmapData[[1]]
     bioNet <- bc3net(expr) 
     initializeBioNetCircos(bioNet)
 

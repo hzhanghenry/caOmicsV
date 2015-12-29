@@ -10,7 +10,8 @@
 }
 \usage{
     showBioMatrixPlotLayout(geneNames, sampleNames, phenotypes, 
-            sampleColors=NULL, geneColors=NULL, phenoColors=NULL)
+            secondGeneNames,  sampleColors=NULL, geneColors=NULL, 
+            phenoColors=NULL)
 }
 \arguments{
     \item{geneNames}{
@@ -22,6 +23,9 @@
     \item{phenotypes}{
     character vector, phenotype names listed on left side of phenotype plot 
     area
+    }
+    \item{secondGeneNames}{
+    character vector, second gene names shown at right side of omics data area
     }
     \item{sampleColors}{
     character vector for color name(s) of R color specification for samples
@@ -41,6 +45,8 @@
 }
 \examples{
     initializeBioMatrixPlot(numOfGenes=1, numOfSamples=50)
-    showBioMatrixPlotLayout("Gene", paste("Sample", 1:50),  "Diagnosis")
+    showBioMatrixPlotLayout(geneNames="Gene", 
+            sampleNames=paste("Sample", 1:50),  
+            phenotypes="Diagnosis", secondGeneNames="miRNA")
 }
 \keyword{ methods }

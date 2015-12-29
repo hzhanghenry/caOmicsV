@@ -52,8 +52,8 @@
     initializeBioMatrixPlot(numOfGenes=1, numOfSamples=50)
     showBioMatrixPlotLayout("Gene", paste("Sample", 1:50),  "Diagnosis")
 
-    data(caOmicsV.biomatrix.eset)
-    exprData <- caOmicsV.biomatrix.eset$heatmapData[[1]]
+    data(biomatrixPlotDemoData)
+    exprData <- biomatrixPlotDemoData$heatmapData[[1]]
     exprData <- matrix(exprData[1, 1:50], nrow=1)
     plotBioMatrixHeatmap(exprData, maxValue=3, minValue=-3)
 }

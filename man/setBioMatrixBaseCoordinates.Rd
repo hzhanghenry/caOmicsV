@@ -9,7 +9,7 @@
 }
 \usage{
     setBioMatrixBaseCoordinates(numOfSamples, sampleWidth, columnPadding, 
-            sampleHeight, geneNameWidth, remarkWidth)
+            sampleHeight, geneNameWidth)
 }
 \arguments{
     \item{numOfSamples}{
@@ -29,9 +29,6 @@
     }
     \item{geneNameWidth}{
     non-negative numeric, width of gene labeling area in inch, default 1
-    }
-    \item{remarkWidth}{
-    non-negative numeric, width of remark area in inch, default 1
     }
 }
 \value{

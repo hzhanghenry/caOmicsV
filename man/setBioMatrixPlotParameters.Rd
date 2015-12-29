@@ -11,7 +11,8 @@
 \usage{
     setBioMatrixPlotParameters(numOfGenes, numOfSamples, numOfPhenotypes, 
             sampleHeight, sampleWidth, columnPadding, rowPadding, 
-            geneNameWidth, remarkWidth, sampleNameHeight, legendHeight)
+            geneNameWidth, remarkWidth, summaryWidth, sampleNameHeight, 
+            legendHeight)
 }
 \arguments{
     \item{numOfGenes}{
@@ -41,6 +42,10 @@
     \item{remarkWidth}{
     non-negative numeric,  width of plot area in inch for right side text plot 
     (second set of gene names) and/or summary data plot
+    } 
+    \item{summaryWidth}{
+    non-negative numeric,  width of plot area in inch on right side of data
+    plot area for summary info plot
     } 
     \item{sampleNameHeight}{
     non-negative numeric, height of plot area in inch for sample names

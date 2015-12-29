@@ -11,7 +11,8 @@
     initializeBioMatrixPlot(numOfGenes=100, numOfSamples=100,   
         numOfPhenotypes=1, sampleHeight=0.4, sampleWidth=0.1,   
         columnPadding=0.025, rowPadding=0.1, geneNameWidth=1,   
-        remarkWidth=1, sampleNameHeight=1, legendHeight=1)
+        remarkWidth=1, summaryWidth=1, sampleNameHeight=1, 
+        legendHeight=1)
 }
 \arguments{
     \item{numOfGenes}{
@@ -43,6 +44,10 @@
     non-negative numeric, width of plot area in inch for second set of gene 
     names and summary data.
     }
+    \item{summaryWidth}{
+    non-negative numeric, width of data plot area in inch to plot summary 
+    info in text or bars.
+    }
     \item{sampleNameHeight}{
     non-negative numeric, height of plot area in inch for sample names (sample 
     name are plotted vertically).
@@ -58,9 +63,10 @@
     Henry Zhang
 }
 \examples{
-    initializeBioMatrixPlot(numOfGenes=100, numOfSamples=100,   
-        numOfPhenotypes=1, sampleHeight=0.4, sampleWidth=0.1,   
-        columnPadding=0.025, rowPadding=0.1, geneNameWidth=1,   
-        remarkWidth=1, sampleNameHeight=1, legendHeight=1)
+    initializeBioMatrixPlot(numOfGenes=100, numOfSamples=100,
+        numOfPhenotypes=1, sampleHeight=0.4, sampleWidth=0.1,
+        columnPadding=0.025, rowPadding=0.1, geneNameWidth=1,
+        remarkWidth=1, summaryWidth=1, sampleNameHeight=1, 
+        legendHeight=1)
 }
 \keyword{ methods }
