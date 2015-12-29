@@ -1,15 +1,15 @@
 #
-#    R Bioconductor package for cancer Genomics data visualization (caOmicsV) 
+#    R Package for Cancer Genomic Data Visualization (caOmicsV) 
 #
-#    Version:             caOmicsV.0.99.0
+# 
 #    __________________________________________________________________________
 #
 #    Data types to  be visualized included:
 #
 #    1). Clinical information
-#    2). Gene expression from microarray or NGS
+#    2). Gene expression from microarray or Next Generation Sequencing
 #    3). Copy number variations (deletions, insertions, and amplifications)
-#    4). Mutations (mutation status presented with binary 0/1 
+#    4). Mutations (mutation status presented with binary 0/1)
 #    5). Methylations
 #
 #    Layouts included:
@@ -18,7 +18,7 @@
 #    2)    Biomatix:        matrix layout
 #
 #    Created on August 8, 2014
-#    Revised on March 4, 2015 in compliance with Bioconductor coding style
+#    Revised on March 18, 2015 in compliance with Bioconductor coding style
 # 
 #    by Hongen Zhang, Ph.D. (hzhang@mail.nih.gov)
 #
@@ -52,7 +52,7 @@ CA_OMICS_NA_STRING <- NULL
 #
 #    Arguments:
 #
-#    eset:    A list object containing all plot datasets, include:
+#    dataSet:        A list of objects containing all plot datasets, include:
 #
 #    sampleNames:    character vector, sample names to be plotted
 #    geneNames:      character vector, names of genes for each row
@@ -96,27 +96,28 @@ CA_OMICS_NA_STRING <- NULL
 #
 #    Returned value:    None
 #
-#    example:             plotAsbioNetCircos(eSet)
+#    example:             plotBioNetCircos(dataSet)
 #
 #    Last revised on January 26, 2015
 #
 
-plotBioNetCircos<-function(eSet, graph=NULL, heatmapMax=NULL, heatmapMin=NULL,
-            heatmapColor="BlueWhiteRed") {
+plotBioNetCircos<-function(dataSet, graph=NULL, heatmapMax=NULL, 
+            heatmapMin=NULL, heatmapColor="BlueWhiteRed") {
 
-    sampleNames  <- eSet$sampleNames
-    geneNames    <- eSet$geneNames
+    sampleNames  <- dataSet$sampleNames
+    geneNames    <- dataSet$geneNames
     numOfSamples <- length(sampleNames)
 
     widthOfSample    <- 100
     widthBetweenNode <- 3
     lengthOfRadius   <- 10;
 
-    numOfSampleInfo <- nrow(eSet$sampleInfo) - 1
-    numOfSummary <- ifelse(eSet$summaryByRow, 0, col(eSet$summaryInfo)-1)
-    numOfHeatmap <- length(eSet$heatmapData)
-    numOfCategory <- length(eSet$categoryData)
-    numOfBinary <- length(eSet$binaryData)
+    numOfSampleInfo <- nrow(dataSet$sampleInfo) - 1
+    numOfSummary <- ifelse(dataSet$summaryByRow, 0, col(dataSet$summaryInfo)-1)
+    numOfHeatmap <- length(dataSet$heatmapData)
+    numOfCategory <- length(dataSet$categoryData)
+    numOfBinary <- length(dataSet$binaryData)
+
     dataNum <- sum(numOfSampleInfo, numOfSummary, numOfHeatmap, 
         numOfCategory, numOfBinary)
 
@@ -127,7 +128,7 @@ plotBioNetCircos<-function(eSet, graph=NULL, heatmapMax=NULL, heatmapMin=NULL,
             bioNet <- graph;
     } else { 
         if(numOfHeatmap<1) {stop("Data for graph not found.") }
-        expr <- eSet$heatmapData[[1]]
+        expr <- dataSet$heatmapData[[1]]
         bioNet <- bc3net(expr) 
     }
 
@@ -146,67 +147,66 @@ plotBioNetCircos<-function(eSet, graph=NULL, heatmapMax=NULL, heatmapMin=NULL,
     inner <- lengthOfRadius/2
     outer <- inner + trackheight
 
-    if(numOfSampleInfo >= 1) {
-        plotType <- supportedType[1]
-        cat("plot", plotType, "\n")
+    # sample data is in a data frame. First row is sample ID
+    #
+    for(aSam in seq_len(nrow(dataSet$sampleInfo))[-1]) {
 
-        sampleData <- eSet$sampleInfo
-        for(aSam in 1:numOfSampleInfo) {
-            groupInfo <- as.character(eSet$sampleInfo[aSam+1, ])
-            sampleType <- unique(groupInfo)
+        print(paste("plot", supportedType[1]))
+        groupInfo  <- as.character(dataSet$sampleInfo[aSam, ])
+        sampleType <- unique(groupInfo)
 
-            colorSet <- caOmicsVColors
-            if(length(sampleType)>length(colorSet))
+        colorSet <- caOmicsVColors
+        if(length(sampleType)>length(colorSet))
                 colorSet <- rainbow(length(sampleType))
-            sampleColors <- rep(colorSet[1], length(sampleNames))
+        sampleColors <- rep(colorSet[1], length(sampleNames))
 
-            for(colorItem in 2:length(sampleType)) {
-                smapleIndex <- which(groupInfo == sampleType[colorItem])
-                sampleColors[smapleIndex] <- colorSet[colorItem]
-            }
+        for(colorItem in seq_len(length(sampleType))[-1]) {
+            smapleIndex <- which(groupInfo == sampleType[colorItem])
+            sampleColors[smapleIndex] <- colorSet[colorItem]
+        }
 
-            groupInfo <- matrix(groupInfo, nrow=1)
-            bioNetCircosPlot(dataValues=groupInfo, plotType, 
+        groupInfo <- matrix(groupInfo, nrow=1)
+        bioNetCircosPlot(dataValues=groupInfo, supportedType[1], 
                     outer, inner, sampleColors)
-            inner <- outer + 0.5;  outer <- inner +  trackheight  
-        }
 
+        inner <- outer + 0.5;  
+        outer <- inner +  trackheight  
     }
 
-    if(length(eSet$heatmapData)>=1) {
-        plotType <- supportedType[4]; 
-        cat("plot", plotType, "\n")
+    for(aMap in seq_along(dataSet$heatmapData)) {
+        print(paste("plot", supportedType[4]))
 
-        for(aMap in 1:length(eSet$heatmapData)) {
-            exprData <- eSet$heatmapData[[aMap]]
-            bioNetCircosPlot(exprData, plotType, outer, inner, 
-                    plotColors=heatmapColor, heatmapMax, heatmapMin)
-            inner <- outer + 0.5;  outer <- inner +  trackheight  
-        }
+        exprData <- dataSet$heatmapData[[aMap]]
+        bioNetCircosPlot(exprData, supportedType[4], outer, inner, 
+                plotColors=heatmapColor, heatmapMax, heatmapMin)
+        inner <- outer + 0.5;
+        outer <- inner +  trackheight  
     }
 
-    if(length(eSet$categoryData)>=1) {
-        plotType <- supportedType[2];
-        cat("plot", plotType, "\n")
+    for(aGroup in seq_along(dataSet$categoryData)) {
 
-        for(aGroup in 1:length(eSet$categoryData)) {
-            categoryData <- eSet$categoryData[[aGroup]]
-            plotColors <- rep(caOmicsVColors[1], ncol(categoryData))
-            bioNetCircosPlot(categoryData, plotType, outer, inner, plotColors)
-            inner <- outer + 0.5;  outer <- inner +  trackheight;  
-        }
+        print(paste("plot", supportedType[2]))
+
+        categoryData <- dataSet$categoryData[[aGroup]]
+        plotColors <- rep(caOmicsVColors[1], ncol(categoryData))
+        bioNetCircosPlot(categoryData, supportedType[2], outer, 
+            inner, plotColors)
+
+        inner <- outer + 0.5;
+        outer <- inner +  trackheight;  
     }
 
-    if(length(eSet$binaryData)>=1) {
-        for(aGroup in 1:length(eSet$binaryData)) {
-            plotType <- supportedType[3]
-            cat("plot", plotType, "\n")
+    for(aGroup in seq_along(dataSet$binaryData)) {
 
-            binaryData <- eSet$binaryData[[aGroup]]
-            plotColors <- rep(caOmicsVColors[1], ncol(binaryData))
-            bioNetCircosPlot(binaryData, plotType, outer, inner, plotColors)
-            inner <- outer + 0.5;  outer <- inner +  trackheight  
-        }
+        print(paste("plot", supportedType[3]))
+
+        binaryData <- dataSet$binaryData[[aGroup]]
+        plotColors <- rep(caOmicsVColors[1], ncol(binaryData))
+        bioNetCircosPlot(binaryData, supportedType[3], outer, 
+            inner, plotColors)
+
+        inner <- outer + 0.5;
+        outer <- inner +  trackheight  
     }
 }
 
@@ -221,7 +221,7 @@ plotBioNetCircos<-function(eSet, graph=NULL, heatmapMax=NULL, heatmapMin=NULL,
 #
 #    Arguments:
 #
-#    eset:    A list object containing all plot datasets, include:
+#    dataSet:       A list object containing all plot datasets, include:
 #
 #    sampleNames:    character vector, sample names to be plotted
 #    geneNames:      character vector, names of genes for each row
@@ -232,7 +232,7 @@ plotBioNetCircos<-function(eSet, graph=NULL, heatmapMax=NULL, heatmapMin=NULL,
 #    heatmapData:    list of data frames, numeric data, maximum number
 #                    of datasets included: 2, values should be log2
 #                    transformed. The first column in each dataset must 
-#                    be gene names same as geneNames ablove and column 
+#                    be gene names same as geneNames above and column 
 #                    names must be same as sampleNames above
 #
 #    categoryData:   list of data frames with categorical data, maximum
@@ -265,94 +265,91 @@ plotBioNetCircos<-function(eSet, graph=NULL, heatmapMax=NULL, heatmapMin=NULL,
 #
 #
 #    Returned value: None
-#    Example:   plotBioMatrix(eSet, summaryType="text", summarybyRow=TRUE);
+#    Example:   plotBioMatrix(dataSet, summaryType="text", summarybyRow=TRUE);
 #
 #   Last revised on November 24, 2014
 #
 
-plotBioMatrix <- function(eSet, summaryType=c("text", "bar"), 
+plotBioMatrix <- function(dataSet, summaryType=c("text", "bar"), 
             summarybyRow=TRUE, heatmapMax=NULL, heatmapMin=NULL, 
             heatmapColor="BlueWhiteRed") {
 
-    numOfGenes      <- length(eSet$geneNames);
-    numOfSamples    <- length(eSet$sampleNames); 
-    numOfPhenotypes <- nrow(eSet$sampleInfo)-1;
+    if(is.null(dataSet$geneNames)) stop("Gene names must be provided.")
+    numOfGenes <- length(dataSet$geneNames);
 
-    numOfHeatmap    <- length(eSet$heatmapData);
-    numOfSummary    <- length(eSet$summaryData);
-    phenotypes      <- rownames(eSet$sampleInfo)[-1];
+    if(is.null(dataSet$sampleNames)) stop("Sample names must be provided.")
+    numOfSamples <- length(dataSet$sampleNames); 
+
+    numOfPhenotypes <- nrow(dataSet$sampleInfo)-1;
+    if(numOfPhenotypes<1) stop("Sample info must have two or more columns.")
+
+    numOfHeatmap    <- length(dataSet$heatmapData);
+    if(numOfHeatmap>2) stop("Number of headmap data is limited to 2.")
+
+    numOfSummary    <- length(dataSet$summaryData);
+    phenotypes      <- rownames(dataSet$sampleInfo)[-1];
 
     sampleHeight=0.4;
     sampleWidth=0.1; 
     samplePadding=0.025;
     geneNameWidth=1;
-    sampleNameHeight=2.5;
-    remarkWidth=numOfHeatmap; 
+    sampleNameHeight=5;
+    remarkWidth=2; 
+    summaryWidth=1;
     rowPadding=0.1;
 
     initializeBioMatrixPlot(numOfGenes, numOfSamples, numOfPhenotypes, 
         sampleHeight, sampleWidth, samplePadding,  rowPadding, 
-        geneNameWidth, remarkWidth, sampleNameHeight);
+        geneNameWidth, remarkWidth, summaryWidth, sampleNameHeight);
 
     par(cex=0.75);
-    showBioMatrixPlotLayout(eSet$geneNames, eSet$sampleNames, phenotypes);
+    showBioMatrixPlotLayout(dataSet$geneNames, dataSet$sampleNames, 
+        phenotypes, dataSet$secondGeneNames);
     caOmicsVColors <- getCaOmicsVColors()
 
-    if(numOfPhenotypes>0) {
-        for(aType in 1:numOfPhenotypes) {
-            rowIndex <- aType+1;
+    for(aType in seq_len(numOfPhenotypes)) {
 
-            sampleGroup <- as.character(eSet$sampleInfo[rowIndex,])
-            sampleTypes <- unique(sampleGroup);
+        rowIndex <- aType+1;
+        sampleGroup <- as.character(dataSet$sampleInfo[rowIndex,])
+        sampleTypes <- unique(sampleGroup);
 
-            plotColors <- caOmicsVColors
-            if (length(sampleTypes)>length(plotColors)) 
-                plotColors <- rainbow(length(sampleTypes))
+        plotColors <- caOmicsVColors
+        if (length(sampleTypes)>length(plotColors)) 
+            plotColors <- rainbow(length(sampleTypes))
 
-            sampleColors <- rep(plotColors[1], length(sampleGroup))
-            for(aColor in 2:length(sampleTypes)) {  
-                sampleIndex <- grep(sampleTypes[aColor], sampleGroup)
-                sampleColors[sampleIndex] <- plotColors[aColor]   
-            }
+        sampleColors <- rep(plotColors[1], length(sampleGroup))
+        for(aColor in seq_len(length(sampleTypes))[-1]) {  
+            sampleIndex <- grep(sampleTypes[aColor], sampleGroup)
+            sampleColors[sampleIndex] <- plotColors[aColor]   
+        }
 
-            plotBioMatrixSampleData(aType, "phenotype", sampleColors)
+        plotBioMatrixSampleData(aType, "phenotype", sampleColors)
 
-            geneLabelX <- getBioMatrixGeneLabelWidth()
-            maxAreaX   <- getBioMatrixDataAreaWidth()
-            legendH    <- getBioMatrixLegendHeight()
-            plotAreaH  <- getBioMatrixPlotAreaHeigth()
-            sampleH    <- getBioMatrixSampleHeight()
+        geneLabelX <- getBioMatrixGeneLabelWidth()
+        maxAreaX   <- getBioMatrixDataAreaWidth()
+        legendH    <- getBioMatrixLegendHeight()
+        plotAreaH  <- getBioMatrixPlotAreaHeigth()
+        sampleH    <- getBioMatrixSampleHeight()
 
-            sampleLegendX <- geneLabelX + maxAreaX #+ sampleW*2
-            sampleLegendY <- plotAreaH + legendH - length(sampleTypes)*sampleH
-            colors <- plotColors[1:length(sampleTypes)]
-            legend(sampleLegendX, sampleLegendY, legend=sampleTypes, 
+        sampleLegendX <- geneLabelX + maxAreaX 
+        sampleLegendY <- plotAreaH + legendH - length(sampleTypes)*sampleH
+        colors <- plotColors[1:length(sampleTypes)]
+        legend(sampleLegendX, sampleLegendY, legend=sampleTypes, 
                     fill=colors,  bty="n", xjust=0)
-        }
     }
 
+    for(aHeatmap in seq_len(numOfHeatmap)) {
 
-    if(length(eSet$heatmapData)>0) {
-        heatmapData <- as.matrix(eSet$heatmapData[[1]][, ])
-        plotBioMatrixHeatmap(heatmapData, maxValue=heatmapMax, 
-                    minValue=heatmapMin)
+        topStart <- ifelse(aHeatmap==1, 0, sampleHeight/2)
 
-        if(length(eSet$heatmapData)>1) {
-            heatmapData <- as.matrix(eSet$heatmapData[[2]][, ])
-            plotBioMatrixHeatmap(heatmapData, topAdjust=sampleHeight/2,
-                    maxValue=heatmapMax, minValue=heatmapMin);
-
-            secondNames <- as.character(eSet$secondGeneNames)
-            textColors <- rep(caOmicsVColors[3], length(secondNames));
-            plotBioMatrixRowNames(secondNames, "omicsData", textColors, 
-                side="right", skipPlotColumns=0)
-        }
+        heatmapData <- dataSet$heatmapData[[aHeatmap]]
+        plotBioMatrixHeatmap(heatmapData, topAdjust=topStart,
+                    maxValue=heatmapMax, minValue=heatmapMin)
     }
 
-
-    if(length(eSet$categoryData)>0) {
-        categoryData <- eSet$categoryData[[1]]
-        totalCategory <- length(unique(as.numeric(eSet$categoryData[[1]])))
+    for(aCat in seq_along(dataSet$categoryData)) {
+        categoryData <- dataSet$categoryData[[aCat]]
+        totalCategory <- length(unique(as.numeric(categoryData)))
 
         plotColors <- rev(getCaOmicsVColors())
         if(totalCategory > length(plotColors)) { 
@@ -363,32 +360,33 @@ plotBioMatrix <- function(eSet, summaryType=c("text", "bar"),
             sampleColors=plotColors[1:totalCategory])
     }
 
+    for(aBinary in seq_along(dataSet$binaryData)) {
 
-    if(length(eSet$binaryData)>0) {
-        binaryData <- eSet$binaryData[[1]];
+        binaryData <- dataSet$binaryData[[aBinary]];
         plotBioMatrixBinaryData(binaryData, sampleColor=caOmicsVColors[4]);
     
-        if(length(eSet$binaryData)>1) {
-            binaryData <- eSet$binaryData[[2]];
+        if(length(dataSet$binaryData)>1) {
+            binaryData <- dataSet$binaryData[[2]];
             binaryData <- as.matrix(binaryData[,-1])
             plotBioMatrixBinaryData(binaryData, sampleColor=caOmicsVColors[3])
         }
     }
 
+    for(aSum in seq_along(dataSet$summaryInfo)) {
 
-    if(length(eSet$summaryInfo)>0) {
-        summaryData  <- eSet$summaryInfo[[1]][, 2];
-        summaryTitle <- colnames(eSet$summaryInfo[[1]])[2];
+        summaryData  <- dataSet$summaryInfo[[aSum]][, 2];
+        summaryTitle <- colnames(dataSet$summaryInfo[[aSum]])[2];
 
-        if(summaryType == "text") {
-            if(length(eSet$heatmapData)>1) {
+        if(length(dataSet$heatmapData)>1) {
                 remarkWidth <- getBioMatrixRemarkWidth();
                 sampleWidth <- getBioMatrixSampleWidth();
-                col2skip <- remarkWidth/2/sampleWidth + 2;
-            } else {  col2skip <- 1; }
+                col2skip <- remarkWidth/sampleWidth + 2;
+        } else {  col2skip <- 1; }
 
-            plotBioMatrixRowNames(summaryTitle, areaName="phenotype", 
-                colors="black", side="right", skipPlotColumns=col2skip);
+        plotBioMatrixRowNames(summaryTitle, areaName="phenotype", 
+            colors="black", side="right", skipPlotColumns=col2skip);
+                
+        if(summaryType == "text") {
             plotBioMatrixRowNames(summaryData, "omicsData", 
                 colors=caOmicsVColors[3], side="right", 
                 skipPlotColumns=col2skip)
@@ -511,14 +509,14 @@ getCaOmicsVPlotTypes <- function() {
 #   Returned value: A list containing all data objects. Omics data will 
 #                      be in data matrix with row and column names
 #
-#   Example:    eSet <- eSet(sampleNames, geneNames, sampleData, 
+#   Example:    dataSet <- getPlotDataSet(sampleNames, geneNames, sampleData, 
 #                            heatmapData=list(A, B), categoryData=list(C, D), 
 #                            binaryData=list(E, F), summaryData=list(G, H))
 #
 #   Last revised on March 4, 2015
 #
 
-getESet<-function(sampleNames, geneNames, sampleData, heatmapData=list(), 
+getPlotDataSet<-function(sampleNames, geneNames, sampleData, heatmapData=list(), 
             categoryData=list(), binaryData=list(), summaryData=list(),
             secondGeneNames=NULL ) {
 
@@ -701,7 +699,6 @@ getPlotSummaryData <- function(summaryData, sampleNames=NULL, geneNames=NULL) {
     geneID   <- as.character(summaryData[,1])
 
     if(is.null(geneNames)) {
-
         columns <- which(sampleID %in% sampleNames)
     if(length(columns) == 0) { stop("No column found.") }
 
@@ -1214,14 +1211,10 @@ convertToZScores <- function(exprData) {
 #
 
 bioMatrixLegend <- function(heatmapNames=NULL, categoryNames=NULL, 
-            binaryNames=NULL, heatmapMin=NULL, heatmapMax=NULL,
+            binaryNames=NULL, heatmapMin=-3, heatmapMax=3,
             colorType="BlueWhiteRed") {
 
     if(length(heatmapNames)>0) {
-
-        if(is.null(heatmapMin) || is.null(heatmapMax)) {
-            stop("Missing Min and Max value for heatmap.\n")
-        }
 
         colScalePosX <- getBioMatrixGeneLabelWidth();
         colScalePosY <- 0.25;
@@ -1282,8 +1275,8 @@ bioMatrixLegend <- function(heatmapNames=NULL, categoryNames=NULL,
 #                      plot color scale
 #        scaleWidth:    non-negative numeric , width of color scale in inch
 #        scaleHeight:   non-negative numeric , height of color scale in inch 
-#        minHeatmap:    numeric, minimum value for heatmap
-#        maxHeatmap:    numeric, maximum value for heatmap
+#        minHeatmap:    numeric, minimum value for heatmap, default -3
+#        maxHeatmap:    numeric, maximum value for heatmap, default 3 
 #        colorType:     character vector, default: "BlueWhiteRed", other valid 
 #                       values are "GreenWhiteRed", "GreenYellowRed",
 #                       "GreenBlackRed", "YellowToRed", and "BlackOnly"
@@ -1300,7 +1293,7 @@ bioMatrixLegend <- function(heatmapNames=NULL, categoryNames=NULL,
 #
 
 bioNetLegend <- function(dataNames, textCoor=NULL, heatmapCoor=NULL, 
-            scaleWidth, scaleHeight, heatmapMin=NULL, heatmapMax=NULL, 
+            scaleWidth, scaleHeight, heatmapMin=-3, heatmapMax=3, 
             colorType="BlueWhiteRed", direction="h") {
 
     bioNetGraph <- getBioNetGraph()
@@ -1330,5 +1323,5 @@ bioNetLegend <- function(dataNames, textCoor=NULL, heatmapCoor=NULL,
             bty="n", xjust=0, yjust=1);
 }
 
-#   Last modified on April 28, 2015
+#   Last modified on May 18, 2015
 #   __________________________________________________________________________

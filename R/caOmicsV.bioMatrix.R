@@ -81,7 +81,7 @@
 initializeBioMatrixPlot <- function(numOfGenes=100, numOfSamples=100,
         numOfPhenotypes=1, sampleHeight=0.4, sampleWidth=0.1, 
         columnPadding=0.025, rowPadding=0.1, geneNameWidth=1,
-        remarkWidth=1, sampleNameHeight=1, legendHeight=1) {
+        remarkWidth=1, summaryWidth=1, sampleNameHeight=1, legendHeight=1) {
 
     if(is.numeric(numOfGenes) == FALSE || 
         is.numeric(numOfSamples) == FALSE || 
@@ -92,6 +92,7 @@ initializeBioMatrixPlot <- function(numOfGenes=100, numOfSamples=100,
         is.numeric(rowPadding) == FALSE  || 
         is.numeric(geneNameWidth) == FALSE || 
         is.numeric(remarkWidth) == FALSE || 
+        is.numeric(summaryWidth) == FALSE ||
         is.numeric(sampleNameHeight) == FALSE || 
         is.numeric(legendHeight) == FALSE ) {
             stop("All arguments must be non-negative numeric.\n") 
@@ -100,16 +101,16 @@ initializeBioMatrixPlot <- function(numOfGenes=100, numOfSamples=100,
     if(numOfGenes<0 || numOfSamples<0 || numOfPhenotypes<0 || 
         sampleHeight<0 || sampleWidth<0 || columnPadding<0 || 
         rowPadding<0 || geneNameWidth<0 || remarkWidth<0 || 
-        sampleNameHeight<0 || legendHeight<0)  {
+        sampleNameHeight<0 || legendHeight<0 || summaryWidth<0)  {
             stop("Negative value is not allowed for argument(s)") 
     }
 
     setBioMatrixPlotParameters(numOfGenes, numOfSamples, 
             numOfPhenotypes, sampleHeight, sampleWidth, columnPadding, 
             rowPadding, geneNameWidth, remarkWidth, sampleNameHeight, 
-            legendHeight)
-    setBioMatrixBaseCoordinates(numOfSamples, sampleWidth,  
-            columnPadding, sampleHeight, geneNameWidth, remarkWidth)
+            summaryWidth, legendHeight)
+    setBioMatrixBaseCoordinates(numOfSamples, sampleWidth, columnPadding, 
+            sampleHeight, geneNameWidth)
 }
 
 
@@ -148,8 +149,8 @@ initializeBioMatrixPlot <- function(numOfGenes=100, numOfSamples=100,
 #
 
 setBioMatrixPlotParameters <- function(numOfGenes, numOfSamples, 
-        numOfPhenotypes, sampleHeight, sampleWidth, columnPadding, rowPadding,
-        geneNameWidth, remarkWidth, sampleNameHeight, legendHeight) {
+    numOfPhenotypes, sampleHeight, sampleWidth, columnPadding, rowPadding,
+    geneNameWidth, remarkWidth, summaryWidth, sampleNameHeight, legendHeight) {
 
     caOmicsVEnvironment <- NULL
     caOmicsVEnvironment <- get(CA_OMICS_NAME, envir=globalenv())
@@ -165,6 +166,7 @@ setBioMatrixPlotParameters <- function(numOfGenes, numOfSamples,
 
     caOmicsVEnvironment[["BioMatrix_Label_Width"]]      <- geneNameWidth
     caOmicsVEnvironment[["BioMatrix_Remark_Width"]]     <- remarkWidth
+    caOmicsVEnvironment[["BioMatrix_Summary_Width"]]    <- summaryWidth
     caOmicsVEnvironment[["BioMatrix_SampleID_Height"]]  <- sampleNameHeight
     caOmicsVEnvironment[["BioMatrix_Legend_Height"]]    <- legendHeight
 
@@ -197,15 +199,13 @@ setBioMatrixPlotParameters <- function(numOfGenes, numOfSamples,
 #                       sample in inch, default 0.4
 #        geneNameWith:  non-negative numeric, width of gene labelling in inch, 
 #                       default 1
-#        remarkWidth:   non-negative numeric, width of remark area in inch, 
-#                        default 1
 #
 #   Example:    Internal use
 #   Last updated on September 4, 2014
 #
 
 setBioMatrixBaseCoordinates <- function(numOfSamples, sampleWidth, 
-            columnPadding, sampleHeight, geneNameWidth, remarkWidth) {
+            columnPadding, sampleHeight, geneNameWidth) {
 
     lastLeft  <- geneNameWidth + (numOfSamples-1)*(sampleWidth+columnPadding)
     lastRight <- lastLeft + sampleWidth
@@ -267,15 +267,16 @@ setBioMatrixPlotArea <- function() {
     geneNameWith   <- getBioMatrixGeneLabelWidth()
     dataAreaWidth  <- getBioMatrixDataAreaWidth()
     remarkWidth    <- getBioMatrixRemarkWidth()
+    summaryWidth   <- getBioMatrixSummaryWidth()
 
     sampleHeight   <- getBioMatrixSampleHeight()
     rowPadding     <- getBioMatrixRowPadding()
     nameHeight     <- getBioMatrixSampleIDHeight()
     legendHeight   <- getBioMatrixLegendHeight()
 
-    plotWidth      <- geneNameWith + dataAreaWidth + remarkWidth
-    rowHeight      <- sampleHeight + rowPadding
-    plotHeight     <- (totalGenes+totalPhenotypes)*rowHeight + 
+    plotWidth  <- geneNameWith + dataAreaWidth + remarkWidth + summaryWidth
+    rowHeight  <- sampleHeight + rowPadding
+    plotHeight <- (totalGenes+totalPhenotypes)*rowHeight + 
                             nameHeight + legendHeight
 
     plot.new()
@@ -363,6 +364,14 @@ getBioMatrixRemarkWidth <- function() {
     return (caOmicsVEnvironment[["BioMatrix_Remark_Width"]])
 }
 
+getBioMatrixSummaryWidth <- function() {
+
+    caOmicsVEnvironment <- NULL
+    caOmicsVEnvironment <- get(CA_OMICS_NAME, envir=globalenv())
+
+    return (caOmicsVEnvironment[["BioMatrix_Summary_Width"]])
+}
+
 getBioMatrixDataAreaWidth<-function() {
 
     caOmicsVEnvironment <- NULL
@@ -446,11 +455,12 @@ getBioMatrixPlotAreaHeigth<-function() {
 
 getBioMatrixPlotAreaWidth<-function() {
 
-    leftNameWidth <- getBioMatrixGeneLabelWidth();
-    dataAreaWidth <- getBioMatrixDataAreaWidth();
-    rightNameWidth <- getBioMatrixRemarkWidth();
-
-    plotAreaWidth <- leftNameWidth + dataAreaWidth + rightNameWidth;
+    leftNameWidth <- getBioMatrixGeneLabelWidth()
+    dataAreaWidth <- getBioMatrixDataAreaWidth()
+    remarkWidth    <- getBioMatrixRemarkWidth()
+    summaryWidth  <- getBioMatrixSummaryWidth()
+    plotAreaWidth <- leftNameWidth + dataAreaWidth + 
+                        remarkWidth + summaryWidth
 
     return (plotAreaWidth)
 }
@@ -577,12 +587,13 @@ plotBioMatrixSampleNames <- function(sampleNames, sampleColors)
 
 plotBioMatrixRowNames <- function(geneNames, areaName, colors, side="left",
                 skipPlotRows=0, skipPlotColumns=0) {
+
     areaName <- tolower(areaName)
     if(!areaName %in% c("omicsdata","phenotype"))
         stop("Incorrect plot area name.") 
 
     side <- tolower(side)
-    if(!side %in% c("left","right")) stop("Incorrect plot area name.")
+    if(!side %in% c("left","right")) stop("Incorrect side definition.")
 
     totalGenes   <- getBioMatrixGeneNumber()
     sampleHeight <- getBioMatrixSampleHeight()
@@ -597,7 +608,7 @@ plotBioMatrixRowNames <- function(geneNames, areaName, colors, side="left",
         position <- 4
     }
 
-    for(aRow in 1:totalGenes) {
+    for(aRow in seq_along(geneNames)) {
 
         yStart <- getBioMatrixDataRowTop(aRow+skipPlotRows, 
                         areaName=areaName)
@@ -692,20 +703,29 @@ plotBioMatrixSampleData <- function(rowNumber, areaName, fillColor=NA,
 #
 
 showBioMatrixPlotLayout <- function(geneNames, sampleNames, phenotypes,
-        sampleColors=NULL, geneColors=NULL, phenoColors=NULL) {  
+        secondGeneNames=NULL, sampleColors=NULL, 
+        geneColors=NULL, phenoColors=NULL) {  
 
     if(is.character(geneNames) == FALSE || 
         is.character(sampleNames) == FALSE ||
         is.character(phenotypes) == FALSE)
-            stop("Arguments must be character vector.") 
-
+            stop("Arguments must be character vector.")
+    
     totalGenes      <- getBioMatrixGeneNumber()
     totalSamples    <- getBioMatrixSampleNumber()
     totalPhenotypes <- getBioMatrixPhenotypeNumber()
 
-    if(length(geneNames)!= totalGenes || length(sampleNames)!=totalSamples ||
+    if(length(geneNames)!= totalGenes || 
+            length(sampleNames)!=totalSamples ||
             length(phenotypes)!= totalPhenotypes)
         stop("Incorrect number of gene names/sample names/phenotypes.")
+
+    if(is.null(secondGeneNames)==FALSE) { 
+        if(is.character(secondGeneNames) == FALSE )
+            stop("secondGeneNames must be character vector.")
+        if(length(secondGeneNames) != totalGenes)
+            stop("Length of gene names and second gene names differ.")
+    }
 
     setBioMatrixPlotArea()
 
@@ -713,19 +733,24 @@ showBioMatrixPlotLayout <- function(geneNames, sampleNames, phenotypes,
     plotBioMatrixSampleNames(sampleNames, sampleColors)
 
     if(is.null(phenoColors)) phenoColors <- rep("black", totalPhenotypes)
-        plotBioMatrixRowNames(phenotypes, "phenotype", phenoColors, "left")
+    plotBioMatrixRowNames(phenotypes, "phenotype", phenoColors, "left")
 
     if(is.null(geneColors)) geneColors <- rep("black", totalGenes)
-        plotBioMatrixRowNames(geneNames, "omicsData", geneColors, "left")
+    plotBioMatrixRowNames(geneNames, "omicsData", geneColors, "left")
+
+    if(is.null(secondGeneNames)==FALSE)
+           plotBioMatrixRowNames(secondGeneNames, "omicsData", geneColors, 
+                side="right", skipPlotColumns=0)
 
     sampleColors <- rep("lightskyblue", totalSamples)
-    for(aPheno in 1:length(phenotypes)) { 
+    for(aPheno in seq_along(phenotypes)) {
         plotBioMatrixSampleData(aPheno, areaName="phenotype", 
             fillColor=sampleColors) 
     }
 
     sampleColors <- rep("lightcyan", totalSamples)
-    for(aGene in 1:totalGenes) {
+    for(aGene in seq_along(geneNames)) {
+
         plotBioMatrixSampleData(aGene, areaName="omicsData", 
                 fillColor=sampleColors)
     }
@@ -769,12 +794,17 @@ plotBioMatrixHeatmap <- function(exprData, topAdjust=0, bottomAdjust=0,
             maxValue=NULL, minValue=NULL, heatmapColor="BlueWhiteRed", 
             skipPlotRow=0) {
 
-    if(length(heatmapColor)>1) { 
-        cat("Heatmap colors should be one from \'BlueWhiteRed\', ",
-            " \'GreenWhiteRed\'\n\'GreenYellowRed\',",
-            " \'GreenBlackRed\', \'YellowToRed\'.\n")
-        stop("Please redefine the plotColors.\n")
-    }
+    errMSG <- "Heatmap colors should be one from: ,
+ 
+        BlueWhiteRed,  
+        GreenWhiteRed,  
+        GreenYellowRed, 
+        GreenBlackRed,  
+        YellowToRed. 
+
+        Please redefine the plotColors."
+
+    if(length(heatmapColor)>1)  stop(errMSG)
 
     totalGenes <- getBioMatrixGeneNumber()
     if(skipPlotRow<0 || skipPlotRow>=totalGenes) 
@@ -790,8 +820,10 @@ plotBioMatrixHeatmap <- function(exprData, topAdjust=0, bottomAdjust=0,
     colorLevel <- seq(dataRange[1], dataRange[2], length=length(colorRamp))
 
     sampleColors <- rep("white", ncol(exprData))
-    for(aRow in 1:nrow(exprData)) {
-        for(aSample in 1:length(sampleColors)) {
+    for(aRow in seq_len(nrow(exprData))) {
+
+         for(aSample in seq_along(sampleColors)) {
+
             if(is.na(exprData[aRow, aSample])) {
                 sampleColors[aSample] <- "grey"; next 
             }
@@ -862,7 +894,7 @@ plotBioMatrixCategoryData <- function(categoryData,
     samplePositions <- getBioMatrixBasePositions()
     sampleHeight    <- getBioMatrixSampleHeight()
 
-    for(aRow in 1:nrow(categoryData)) {
+    for(aRow in seq_len(nrow(categoryData))) {
         yStart  <- getBioMatrixDataRowTop(aRow+skipPlotRow, areaName)
 
         xLeft   <- samplePositions[, 1]
@@ -871,7 +903,7 @@ plotBioMatrixCategoryData <- function(categoryData,
         yBottom <- yTop - sampleHeight
 
         plotData <- categoryData[aRow, ]
-        for(aCategory in 1:totalcategories) {
+        for(aCategory in seq_len(totalcategories) ) {
             sampleIndex <- which(plotData == categoryNames[aCategory])
             rect(xLeft[sampleIndex], yBottom[sampleIndex], 
                 xRight[sampleIndex], yTop[sampleIndex], 
@@ -884,9 +916,6 @@ plotBioMatrixCategoryData <- function(categoryData,
         }
     }
 }
-
-
-
 
 
 
@@ -946,7 +975,7 @@ plotBioMatrixBinaryData <- function(binaryData, areaName="omicsData",
     pointHeight <- subRowHeight*subRowIndex - subRowHeight/2
 
     pointX <- (samplePositions[, 1] + samplePositions[, 3]) / 2
-    for(aRow in 1:nrow(binaryData)) {
+    for(aRow in seq_len(nrow(binaryData)))  {
         rowTop  <- getBioMatrixDataRowTop(aRow+skipPlotRow, areaName)
         pointY <- rep(rowTop - pointHeight, length(pointX))
 
@@ -955,7 +984,6 @@ plotBioMatrixBinaryData <- function(binaryData, areaName="omicsData",
                     cex=scatterSize, col=sampleColor[1])
     }
 }
-
 
 
 
@@ -1032,7 +1060,9 @@ plotBioMatrixBars <- function(barData, barColor="red", areaName="omicsData",
         barXRight <- barXLeft + sampleWidth
     }
 
-    for(aRow in 1:totalRows) {
+
+    for(aRow in seq_len(totalRows)) {
+
         yStart  <- getBioMatrixDataRowTop(aRow+skipPlotRow, areaName)
         yBottom <- yStart - sampleHeight
 
@@ -1040,7 +1070,7 @@ plotBioMatrixBars <- function(barData, barColor="red", areaName="omicsData",
             rect(barXLeft, yBottom, barXRight, 
                 yBottom+barData[aRow], col= barColor)
         } else {
-            for(aBar in 1:barsPerRow) {
+            for(aBar in seq_len(barsPerRow)) {
                 rect(barXLeft[aBar], yBottom, barXRight[aBar],
                     yBottom+barData[aRow, aBar], col=barColor)
             }
@@ -1048,5 +1078,5 @@ plotBioMatrixBars <- function(barData, barColor="red", areaName="omicsData",
     }
 }
 
-#   Last revised on April 28, 2015
+#   Last revised on May 18, 2015
 #   ______________________________________________________________________

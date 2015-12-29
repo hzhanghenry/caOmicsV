@@ -9,7 +9,7 @@
 #    Mutations
 # 
 #    Date created: June 17, 2014
-#    Revised on March 28, 2015 in compliance with Bioconductor coding style
+#    Revised on May 18, 2015 in compliance with Bioconductor coding style
 # 
 #    Hongen Zhang, Ph.D. (hzhang@mail.nih.gov)
 #
@@ -445,7 +445,7 @@ setBioNetPlotAreaBackground <- function(bgColor=grey(0.75, alpha=0.5)) {
     bgColor <- rgb(red=rgb.val[1], green=rgb.val[2], 
                     blue=rgb.val[3], alpha=0.5)
 
-    for(nodeIndex in 1:nrow(bioNetGraph$layout)) {
+    for(nodeIndex in seq_len(nrow(bioNetGraph$layout)))  {
 
         nodeCenter <- bioNetGraph$layout[nodeIndex,]
         areaX <- polygonX + nodeCenter[1]
@@ -483,7 +483,7 @@ eraseBioNetNode <- function() {
     plotPositions <- getBioNetBasePositions()
     nodeArea <- plotPositions[,1:2]*plotRadius
 
-    for(nodeIndex in 1:nrow(bioNetGraph$layout)) {
+    for(nodeIndex in seq_len(nrow(bioNetGraph$layout)))  {
 
         nodeCenter <- bioNetGraph$layout[nodeIndex,]
         nodeX <- nodeArea[,1] + nodeCenter[1]
@@ -724,7 +724,7 @@ plotBioNetPolygons <- function(dataValues, outer, inner) {
         groupColors <- rainbow(numOfGroup)  
     }
 
-    for(nodeIndex in 1:nrow(bioNetGraph$layout)) {
+    for(nodeIndex in seq_len(nrow(bioNetGraph$layout)))  {
 
         nodeCenter <- as.numeric(bioNetGraph$layout[nodeIndex,])
         plotLocations <- getBioNetPlotLocations(nodeCenter, outer, inner)
@@ -742,7 +742,7 @@ plotBioNetPolygons <- function(dataValues, outer, inner) {
         }
 
         totalSamples <- getBioNetPlotTotalSample()
-        for(a.sample in 1:totalSamples) {
+        for(a.sample in seq_len(totalSamples)) {
             start <- plotLocations$positionIndex[a.sample, 1]
             end   <- plotLocations$positionIndex[a.sample, 3]
             theColor <- plotColors[a.sample]
@@ -806,7 +806,7 @@ plotBioNetBars <- function(dataValues, outer, inner, plotColors) {
         maxValue <- max(barData);
         minValue <- min(barData);
         dataRange <- maxValue - minValue;
-        for(aRow in 1:nrow(dataValues))
+        for(aRow in seq_len(nrow(dataValues)))
             dataValues[aRow,] <- (dataValues[aRow,]- minValue)/dataRange
     }
 
@@ -816,7 +816,7 @@ plotBioNetBars <- function(dataValues, outer, inner, plotColors) {
     vertexNames  <- V(bioNetGraph)$name
     dataRowNames <- rownames(dataValues)
 
-    for(nodeIndex in 1:nrow(bioNetGraph$layout)) {
+    for(nodeIndex in seq_len(nrow(bioNetGraph$layout))) {
 
         if(length(dataRowNames) == 1) dataIndex <- 1
         else {
@@ -828,7 +828,7 @@ plotBioNetBars <- function(dataValues, outer, inner, plotColors) {
         nodeCenter <- as.numeric(bioNetGraph$layout[nodeIndex,])
         plotLocations <- getBioNetPlotLocations(nodeCenter, outer, inner)
 
-        for(a.sample in 1:length(plotData)) {
+        for(a.sample in seq_len(length(plotData))) {
 
             if(plotData[a.sample] == 0) next 
 
@@ -889,14 +889,17 @@ plotBioNetBars <- function(dataValues, outer, inner, plotColors) {
 plotBioNetHeatmap <- function(dataValues, maxValue=NULL, minValue=NULL,  
             outer, inner, plotColors) {
 
-    if(length(plotColors)>1) {
+    errMSG <- "Heatmap colors should be one from:
 
-        cat("Heatmap colors should be one from \'BlueWhiteRed\', ",
-            " \'GreenWhiteRed\'\n\'GreenYellowRed\',",
-            " \'GreenBlackRed\', \'YellowToRed\'.\n")
-        stop("Please redefine the plotColors.\n")
-    }
+        BlueWhiteRed, 
+        GreenWhiteRed, 
+        GreenYellowRed, 
+        GreenBlackRed, 
+        YellowToRed.
 
+        Please redefine the plotColors."
+
+    if(length(plotColors)>1)  stop(errMSG)
 
     if(is.null(minValue) == FALSE && is.null(maxValue) == FALSE)  
         dataRange <- c(minValue, maxValue)  
@@ -910,7 +913,7 @@ plotBioNetHeatmap <- function(dataValues, maxValue=NULL, minValue=NULL,
     vertexNames  <- V(bioNetGraph)$name
     dataRowNames <- rownames(dataValues)
 
-    for(nodeIndex in 1:nrow(bioNetGraph$layout)) {
+    for(nodeIndex in seq_len(nrow(bioNetGraph$layout))) {
 
         if(length(dataRowNames) == 1) dataIndex <- 1
         else {
@@ -923,17 +926,17 @@ plotBioNetHeatmap <- function(dataValues, maxValue=NULL, minValue=NULL,
         plotLocations <- getBioNetPlotLocations(nodeCenter, outer, inner)
 
         sampleColors <- rep(colorRamp[1], length(plotData))
-        for(a.sample in 1:length(plotData)) {
+        for(a.sample in seq_len(length(plotData))) {
 
             if(is.na(plotData[a.sample])) {
                 sampleColors[a.sample] <- "gray"; next 
             }
 
-        the.level <- which(colorLevel>=plotData[a.sample])
+            the.level <- which(colorLevel>=plotData[a.sample])
             sampleColors[a.sample] <- colorRamp[min(the.level)]
         }
 
-        for(a.sample in 1:length(plotData)) {
+        for(a.sample in seq_len(length(plotData)))  {
 
             start <- plotLocations$positionIndex[a.sample, 1]
             end   <- plotLocations$positionIndex[a.sample, 3]
@@ -1002,7 +1005,7 @@ plotBioNetPoints <- function(dataValues, maxValue=NULL, minValue=NULL,
     dataRowNames <- rownames(dataValues)
 
     totalSamples  <- length(dataValues[1,])
-    for(nodeIndex in 1:nrow(bioNetGraph$layout)) {
+    for(nodeIndex in seq_len(nrow(bioNetGraph$layout))) {
 
         if(length(dataRowNames) == 1) 
             dataIndex <- 1
@@ -1023,7 +1026,7 @@ plotBioNetPoints <- function(dataValues, maxValue=NULL, minValue=NULL,
             pcex <- rep(0.5, totalSamples)
 
 
-        for(aSample in 1:totalSamples) {
+        for(aSample in seq_len(totalSamples)) {
 
             theColor <- plotColors[aSample]
 
@@ -1100,7 +1103,8 @@ plotBioNetLines <- function(dataValues, outer, inner, maxValue=NULL,
         pointLocations <- plotLocations$inPositions[pointIndex,] 
         pointLocations <- pointLocations* (1+pointHeights[nodeIndex,]) 
 
-        for(a.sample in 1:(totalSamples-1)) {
+        for(a.sample in seq_len(totalSamples-1)) {
+
             theColor <- plotColors[a.sample]
 
             startX <- pointLocations[a.sample,1] + nodeCenter[1]
@@ -1177,7 +1181,7 @@ labelBioNetNodeNames <- function(nodeList=NULL, labelColor="black",
 
     if(is.null(nodeList)) nodeList <- 1:nrow(bioNetGraph$layout) 
 
-    for(nodeIndex in 1:length(nodeList)) {
+    for(nodeIndex in seq_len(length(nodeList))) {
         theNode <- nodeList[nodeIndex]
         nodeCenter <- bioNetGraph$layout[theNode,]
 
@@ -1462,7 +1466,7 @@ getBioNetNodeLinkLine <- function(lineX, lineY, arrowSize=1, lineLength) {
     newX <- polygonX
     newY <- polygonY
 
-    for(a.point in 1:length(newX)) {
+    for(a.point in seq_len(length(newX))) {
         newX[a.point] <- polygonX[a.point]*cos(angle) -  
                             polygonY[a.point]*sin(angle)
         newY[a.point] <- polygonX[a.point]*sin(angle) +  
@@ -1476,7 +1480,7 @@ getBioNetNodeLinkLine <- function(lineX, lineY, arrowSize=1, lineLength) {
 }
 
 
-#    Last revised on April 28, 2015
+#    Last revised on May 18, 2015
 #    ________________________________________________________________________
 
 
